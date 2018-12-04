@@ -2,6 +2,7 @@ package com.weather.oneplus_w;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -95,6 +96,12 @@ public class AreaFragment extends Fragment {
                 }else if (currentLevel == LEVEL_CITY) {
                     selectedCity = cityList.get(i);
                     queryCounties();
+                }else if (currentLevel == LEVEL_COUNTY) {
+                    String weatherId = countyList.get(i).getWeatherId();
+                    Intent intent = new Intent(getActivity(),WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
         });
@@ -115,7 +122,6 @@ public class AreaFragment extends Fragment {
         titleText.setText("中国");
         bactButton.setVisibility(View.GONE);
         provinceList = DataSupport.findAll(Province.class);
-        Log.e("1234",provinceList.size()+"");
         if (provinceList.size()>0) {
             dataList.clear();
             for (Province province : provinceList) {
@@ -186,7 +192,6 @@ public class AreaFragment extends Fragment {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 String responseText = response.body().string();
-                Log.e("123",responseText);
                 boolean result = false;
                 if ("province".equals(type)) {
                     result = Utility.handleProvinceResponse(responseText);

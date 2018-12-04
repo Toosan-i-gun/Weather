@@ -1,15 +1,25 @@
 package com.weather.oneplus_w.util;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.weather.oneplus_w.db.City;
 import com.weather.oneplus_w.db.County;
 import com.weather.oneplus_w.db.Province;
+import com.weather.oneplus_w.gson.Weather;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.lang.reflect.Type;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * ━━━━━━神兽出没━━━━━━
@@ -94,4 +104,33 @@ public class Utility {
         }
         return false;
     }
+    public static Weather handleWeatherResponse(String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            String weatherContent = jsonObject.toString();
+            return new Gson().fromJson(weatherContent,Weather.class);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void putWeather(Context ctx,Weather weather) {
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(ctx).edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(weather);
+        editor.putString("weather", json);
+        editor.apply();
+    }
+    public static Weather getWeather(Context ctx) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ctx);
+        Gson gson = new Gson();
+        String json = preferences.getString("weather", null);
+        Type type = new TypeToken<Weather>() {
+        }.getType();
+        Weather weather = gson.fromJson(json, type);
+        return weather;
+    }
+
+
 }
